@@ -49,7 +49,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = reqwest::Client::new();
 
     let url = "https://api.openai.com/v1/chat/completions";
-    let model = env::var("OPENAI_AI_MODEL").unwrap_or("gpt-3.5-turbo".to_string());
+    let model = env::var("OPENAI_API_MODEL").unwrap_or("gpt-3.5-turbo".to_string());
     let mut messages: Vec<Message> = vec![];
 
     match env::var("OPENAI_API_KEY") {
