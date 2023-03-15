@@ -73,6 +73,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             for str in serde_json::to_string(&res.choices[0].message.content)
                 .unwrap()
+                .replace("\\\"", "\"")
                 .trim_matches('"')
                 .split("\\n")
             {
