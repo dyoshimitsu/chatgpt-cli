@@ -67,10 +67,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .json::<Response>()
                 .await?;
 
-            println!(
-                "{}",
-                serde_json::to_string(&res.choices[0].message.content).unwrap()
-            );
+            for str in serde_json::to_string(&res.choices[0].message.content)
+                .unwrap()
+                .trim_matches('"')
+                .split("\\n")
+                .collect::<Vec<&str>>()
+                .iter()
+            {
+                println!("{}", str)
+            }
         }
         Err(e) => println!("OPENAI_API_KEYが設定されていません: {:?}", e),
     }
