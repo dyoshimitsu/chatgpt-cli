@@ -42,7 +42,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let bearer_auth = env::var("OPENAI_API_KEY");
 
     match bearer_auth {
-        Ok(bearer_auth) => {
+        Ok(bearer_auth) => loop {
             print!("> ");
             stdout().flush().unwrap();
 
@@ -60,7 +60,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let res = client
                 .post(url)
                 .header("Content-Type", "application/json")
-                .bearer_auth(bearer_auth)
+                .bearer_auth(&bearer_auth)
                 .body(body.to_string())
                 .send()
                 .await?
@@ -76,7 +76,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             {
                 println!("{}", str)
             }
-        }
+        },
         Err(e) => println!("OPENAI_API_KEYが設定されていません: {:?}", e),
     }
 
