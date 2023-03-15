@@ -1,5 +1,5 @@
 use std::env;
-use std::io;
+use std::io::{stdin, stdout, Write};
 
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -43,10 +43,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     match bearer_auth {
         Ok(bearer_auth) => {
+            print!("> ");
+            stdout().flush().unwrap();
+
             let mut input = String::new();
-            io::stdin()
-                .read_line(&mut input)
-                .expect("Failed to read line");
+            stdin().read_line(&mut input).unwrap();
 
             let body = json!({
                 "model": "gpt-3.5-turbo",
