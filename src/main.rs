@@ -1,5 +1,5 @@
 use std::env;
-use std::io::{stdin, stdout, Write};
+use std::io::{stdin, stdout, BufRead, BufReader, Write};
 
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -54,11 +54,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     match env::var("OPENAI_API_KEY") {
         Ok(bearer_auth) => loop {
-            print!("> ");
-            stdout().flush().unwrap();
-
             let mut input = String::new();
-            stdin().read_line(&mut input).unwrap();
+            let mut reader = BufReader::new(stdin().lock());
+
+            loop {
+                print!("> ");
+                stdout().flush().unwrap();
+
+                let mut line = String::new();
+                reader.read_line(&mut line).expect("Failed to read line");
+
+                if line == "\n" {
+                    break;
+                }
+
+                input.push_str(&line);
+            }
 
             println!();
 
