@@ -75,8 +75,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .unwrap()
                 .trim_matches('"')
                 .split("\\n")
-                .collect::<Vec<&str>>()
-                .iter()
             {
                 println!("{}", str)
             }
