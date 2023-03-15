@@ -19,9 +19,9 @@ struct Response {
 struct Error {
     message: String,
     #[serde(rename = "type")]
-    error_type: String,
-    param: String,
-    code: String,
+    error_type: Option<String>,
+    param: Option<String>,
+    code: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
