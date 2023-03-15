@@ -41,6 +41,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let url = "https://api.openai.com/v1/chat/completions";
     let bearer_auth = env::var("OPENAI_API_KEY");
 
+    let mut messages: Vec<Message> = vec![];
+
     match bearer_auth {
         Ok(bearer_auth) => loop {
             print!("> ");
@@ -49,12 +51,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let mut input = String::new();
             stdin().read_line(&mut input).unwrap();
 
+            messages.push(Message {
+                role: "user".to_string(),
+                content: input,
+            });
+
             let body = json!({
                 "model": "gpt-3.5-turbo",
-                "messages": [{
-                    "role": "user",
-                    "content": input,
-                }],
+                "messages": messages
             });
 
             let res = client
@@ -76,6 +80,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             {
                 println!("{}", str)
             }
+
+            messages.push(Message {
+                role: res.choices[0].message.role.clone(),
+                content: res.choices[0].message.content.clone(),
+            });
         },
         Err(e) => println!("OPENAI_API_KEYが設定されていません: {:?}", e),
     }
