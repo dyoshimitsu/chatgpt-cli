@@ -1,7 +1,38 @@
 use std::env;
 use std::io;
 
+use serde::{Deserialize, Serialize};
 use serde_json::json;
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Response {
+    id: String,
+    object: String,
+    created: u32,
+    model: String,
+    usage: Usage,
+    choices: Vec<Choices>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Usage {
+    prompt_tokens: u32,
+    completion_tokens: u32,
+    total_tokens: u32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Choices {
+    message: Message,
+    finish_reason: String,
+    index: u32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Message {
+    role: String,
+    content: String,
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -32,10 +63,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .body(body.to_string())
                 .send()
                 .await?
-                .text()
+                .json::<Response>()
                 .await?;
 
-            println!("{}", res);
+            println!(
+                "{}",
+                serde_json::to_string(&res.choices[0].message.content).unwrap()
+            );
         }
         Err(e) => println!("OPENAI_API_KEYが設定されていません: {:?}", e),
     }
