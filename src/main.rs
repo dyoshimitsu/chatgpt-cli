@@ -1,8 +1,14 @@
-use std::io;
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let url = "https://api.openai.com/v1/chat/completions";
+    let client = reqwest::Client::new();
 
-fn main() {
-    let mut input = String::new();  // 標準入力を格納する文字列変数を作成する
-    io::stdin().read_line(&mut input).expect("Failed to read line");  // 標準入力から文字列を読み込む
+    let res = client.get(url)
+        .send()
+        .await?
+        .text()
+        .await?;
 
-    println!("You typed: {}", input);  // 読み込んだ文字列を表示する
+    println!("{}", res);
+    Ok(())
 }
