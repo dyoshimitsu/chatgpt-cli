@@ -6,12 +6,22 @@ use serde_json::json;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Response {
-    id: String,
-    object: String,
-    created: u32,
-    model: String,
-    usage: Usage,
-    choices: Vec<Choices>,
+    id: Option<String>,
+    object: Option<String>,
+    created: Option<u32>,
+    model: Option<String>,
+    usage: Option<Usage>,
+    choices: Option<Vec<Choices>>,
+    error: Option<Error>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Error {
+    message: String,
+    #[serde(rename = "type")]
+    error_type: String,
+    param: String,
+    code: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -50,6 +60,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let mut input = String::new();
             stdin().read_line(&mut input).unwrap();
 
+            println!();
+
             messages.push(Message {
                 role: "user".to_string(),
                 content: input,
@@ -70,19 +82,32 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .json::<Response>()
                 .await?;
 
-            for str in serde_json::to_string(&res.choices[0].message.content)
-                .unwrap()
-                .replace("\\\"", "\"")
-                .trim_matches('"')
-                .split("\\n")
-            {
-                println!("{}", str)
+            match (res.error, res.choices) {
+                (None, None) => {
+                    println!("Failed request.");
+                }
+                (Some(error), _) => {
+                    println!("{}", error.message);
+                }
+                (None, Some(choices)) => {
+                    for str in choices[0]
+                        .message
+                        .content
+                        .replace("\\\"", "\"")
+                        .trim_matches('"')
+                        .split("\\n")
+                    {
+                        println!("{}", str)
+                    }
+
+                    messages.push(Message {
+                        role: choices[0].message.role.clone(),
+                        content: choices[0].message.content.clone(),
+                    });
+                }
             }
 
-            messages.push(Message {
-                role: res.choices[0].message.role.clone(),
-                content: res.choices[0].message.content.clone(),
-            });
+            println!();
         },
         Err(e) => println!("OPENAI_API_KEYが設定されていません: {:?}", e),
     }
