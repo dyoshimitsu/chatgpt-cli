@@ -39,11 +39,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = reqwest::Client::new();
 
     let url = "https://api.openai.com/v1/chat/completions";
-    let bearer_auth = env::var("OPENAI_API_KEY");
-
+    let model = env::var("OPENAI_AI_MODEL").unwrap_or("gpt-3.5-turbo".to_string());
     let mut messages: Vec<Message> = vec![];
 
-    match bearer_auth {
+    match env::var("OPENAI_API_KEY") {
         Ok(bearer_auth) => loop {
             print!("> ");
             stdout().flush().unwrap();
@@ -57,7 +56,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             });
 
             let body = json!({
-                "model": "gpt-3.5-turbo",
+                "model": model,
                 "messages": messages
             });
 
